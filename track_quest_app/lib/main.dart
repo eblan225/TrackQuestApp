@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import "quest_data.dart";
 
+import "quest_data.dart";
 
 void main() => runApp(const TrackQuestApp());
 
-
 class TrackQuestApp extends StatelessWidget {
   const TrackQuestApp({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +22,62 @@ class TrackQuestApp extends StatelessWidget {
   }
 }
 
-
-class QuestListScreen extends StatelessWidget {
+class QuestListScreen extends StatefulWidget {
   const QuestListScreen({super.key});
 
+  @override
+  State<QuestListScreen> createState() => _QuestListScreenState();
+}
+
+class _QuestListScreenState extends State<QuestListScreen> {
+  final List<GamePlaythrough> playthroughs = [];
+
+  void addPlaythrough(GamePlaythrough game) {
+    setState(() => playthroughs.add(game));
+  }
+
+  Future<void> showGamePicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF0E1C2F),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Start a playthrough',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 16),
+              ...premadeGameTemplates.map(
+                (template) => ListTile(
+                  leading: const Icon(Icons.bolt, color: Color(0xFF54B7FF)),
+                  title: Text(template.name),
+                  onTap: () {
+                    addPlaythrough(template.createPlaythrough());
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.add, color: Color(0xFF54B7FF)),
+                title: const Text('Custom game'),
+                subtitle: const Text('Start with an empty quest list'),
+                onTap: () {
+                  addPlaythrough(
+                    GamePlaythrough(name: 'Custom Game', quests: []),
+                  );
+                  Navigator.pop(sheetContext);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,60 +109,34 @@ class QuestListScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
-               // ELDEN RING GAME CARD
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EldenRingScreen(),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0E1C2F),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFF1D334D)),
-                  ),
-                  child: const Row(
-                    children: [
-                      QuestMarker(),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Elden Ring',
-                              style: TextStyle(
-                                color: Color(0xFFF2F7FF),
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              '0% complete',
-                              style: TextStyle(
-                                color: Color(0xFF54B7FF),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: Color(0xFF526A84),
-                        size: 16,
-                      ),
-                    ],
-                  ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: playthroughs.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final game = playthroughs[index];
+                    return GameCard(
+                      game: game,
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EldenRingScreen(game: game),
+                          ),
+                        );
+                        setState(() {});
+                      },
+                    );
+                  },
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: showGamePicker,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add game'),
                 ),
               ),
             ],
@@ -123,10 +147,64 @@ class QuestListScreen extends StatelessWidget {
   }
 }
 
+class GameCard extends StatelessWidget {
+  final GamePlaythrough game;
+  final VoidCallback onTap;
+
+  const GameCard({super.key, required this.game, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0E1C2F),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFF1D334D)),
+        ),
+        child: Row(
+          children: [
+            const QuestMarker(),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    game.name,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${(game.progress * 100).round()}% complete',
+                    style: const TextStyle(
+                      color: Color(0xFF54B7FF),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Color(0xFF526A84),
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class QuestMarker extends StatelessWidget {
   const QuestMarker({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -142,29 +220,21 @@ class QuestMarker extends StatelessWidget {
   }
 }
 
-
-
-
-
-
 // ─────────────────────────────────────────────
 // ELDEN RING SCREEN
 // ─────────────────────────────────────────────
 
-
 class EldenRingScreen extends StatefulWidget {
-  const EldenRingScreen({super.key});
+  final GamePlaythrough game;
 
+  const EldenRingScreen({super.key, required this.game});
 
   @override
-  State<EldenRingScreen> createState() =>
-      _EldenRingScreenState();
+  State<EldenRingScreen> createState() => _EldenRingScreenState();
 }
-
 
 class _EldenRingScreenState extends State<EldenRingScreen> {
   String selectedRegion = 'All';
-
 
   final List<String> regions = [
     'All',
@@ -182,38 +252,30 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
     'Deeproot Depths',
   ];
 
-
   // Only show quests matching the selected region.
   List<QuestStep> get filteredQuests {
     if (selectedRegion == 'All') {
-      return eldenRingQuests;
+      return widget.game.quests;
     }
 
-
-    return eldenRingQuests
+    return widget.game.quests
         .where((quest) => quest.region == selectedRegion)
         .toList();
   }
 
-
   // Count completed quests.
   int get completedCount {
-    return eldenRingQuests
-        .where((quest) => quest.completed)
-        .length;
+    return widget.game.quests.where((quest) => quest.completed).length;
   }
-
 
   // Calculate percentage.
   double get progress {
-    if (eldenRingQuests.isEmpty) {
+    if (widget.game.quests.isEmpty) {
       return 0;
     }
 
-
-    return completedCount / eldenRingQuests.length;
+    return completedCount / widget.game.quests.length;
   }
-
 
   // Complete / uncomplete a quest.
   void toggleQuest(QuestStep quest) {
@@ -222,20 +284,16 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF0E1C2F),
-        title: const Text(
-          'Elden Ring',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
+        title: Text(
+          widget.game.name,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-
 
       body: Column(
         children: [
@@ -243,14 +301,12 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
           // PROGRESS
           // ─────────────────────────────────
 
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             color: const Color(0xFF0E1C2F),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Quest Progress',
@@ -261,33 +317,25 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
                   ),
                 ),
 
-
                 const SizedBox(height: 12),
-
 
                 Row(
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10),
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 10,
-                          backgroundColor:
-                              const Color(0xFF1D334D),
-                          valueColor:
-                              const AlwaysStoppedAnimation<
-                                  Color>(
+                          backgroundColor: const Color(0xFF1D334D),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
                             Color(0xFF54B7FF),
                           ),
                         ),
                       ),
                     ),
 
-
                     const SizedBox(width: 12),
-
 
                     Text(
                       '${(progress * 100).round()}%',
@@ -299,41 +347,29 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
                   ],
                 ),
 
-
                 const SizedBox(height: 8),
 
-
                 Text(
-                  '$completedCount of ${eldenRingQuests.length} steps completed',
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 12,
-                  ),
+                  '$completedCount of ${widget.game.quests.length} steps completed',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
                 ),
               ],
             ),
           ),
 
-
           // ─────────────────────────────────
           // REGION FILTER
           // ─────────────────────────────────
-
-
           SizedBox(
             height: 55,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: regions.length,
               itemBuilder: (context, index) {
                 final region = regions[index];
 
-
-                final selected =
-                    region == selectedRegion;
-
+                final selected = region == selectedRegion;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(
@@ -354,12 +390,9 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
             ),
           ),
 
-
           // ─────────────────────────────────
           // QUEST TIMELINE
           // ─────────────────────────────────
-
-
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -367,9 +400,9 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
               itemBuilder: (context, index) {
                 final quest = filteredQuests[index];
 
-
                 return QuestTimelineCard(
                   quest: quest,
+                  allQuests: widget.game.quests,
                   onToggle: () {
                     toggleQuest(quest);
                   },
@@ -383,31 +416,29 @@ class _EldenRingScreenState extends State<EldenRingScreen> {
   }
 }
 
-
 // ─────────────────────────────────────────────
 // QUEST TIMELINE CARD
 // ─────────────────────────────────────────────
 class QuestTimelineCard extends StatelessWidget {
   final QuestStep quest;
+  final List<QuestStep> allQuests;
   final VoidCallback onToggle;
-
 
   const QuestTimelineCard({
     super.key,
     required this.quest,
+    required this.allQuests,
     required this.onToggle,
   });
 
-
   QuestStep? findQuestById(String id) {
-    for (final q in eldenRingQuests) {
+    for (final q in allQuests) {
       if (q.id == id) {
         return q;
       }
     }
     return null;
   }
-
 
   List<QuestStep> get missingRequirements {
     return quest.requires
@@ -417,11 +448,9 @@ class QuestTimelineCard extends StatelessWidget {
         .toList();
   }
 
-
   bool get isLocked {
     return missingRequirements.isNotEmpty;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -441,8 +470,8 @@ class QuestTimelineCard extends StatelessWidget {
                   color: quest.completed
                       ? const Color(0xFF54B7FF)
                       : isLocked
-                          ? const Color(0xFF526A84)
-                          : const Color(0xFF1D334D),
+                      ? const Color(0xFF526A84)
+                      : const Color(0xFF1D334D),
                   border: Border.all(
                     color: isLocked
                         ? const Color(0xFF526A84)
@@ -451,38 +480,22 @@ class QuestTimelineCard extends StatelessWidget {
                   ),
                 ),
                 child: quest.completed
-                    ? const Icon(
-                        Icons.check,
-                        size: 12,
-                        color: Colors.black,
-                      )
+                    ? const Icon(Icons.check, size: 12, color: Colors.black)
                     : isLocked
-                        ? const Icon(
-                            Icons.lock,
-                            size: 9,
-                            color: Colors.white70,
-                          )
-                        : null,
+                    ? const Icon(Icons.lock, size: 9, color: Colors.white70)
+                    : null,
               ),
-              Container(
-                width: 2,
-                height: 170,
-                color: const Color(0xFF1D334D),
-              ),
+              Container(width: 2, height: 170, color: const Color(0xFF1D334D)),
             ],
           ),
         ),
 
-
         const SizedBox(width: 8),
-
 
         // Quest card
         Expanded(
           child: Card(
-            color: isLocked
-                ? const Color(0xFF0A1625)
-                : const Color(0xFF0E1C2F),
+            color: isLocked ? const Color(0xFF0A1625) : const Color(0xFF0E1C2F),
             margin: const EdgeInsets.only(bottom: 16),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -500,9 +513,7 @@ class QuestTimelineCard extends StatelessWidget {
                     ),
                   ),
 
-
                   const SizedBox(height: 5),
-
 
                   // Quest title
                   Text(
@@ -511,8 +522,8 @@ class QuestTimelineCard extends StatelessWidget {
                       color: quest.completed
                           ? Colors.white38
                           : isLocked
-                              ? Colors.white54
-                              : const Color(0xFFF2F7FF),
+                          ? Colors.white54
+                          : const Color(0xFFF2F7FF),
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       decoration: quest.completed
@@ -521,9 +532,7 @@ class QuestTimelineCard extends StatelessWidget {
                     ),
                   ),
 
-
                   const SizedBox(height: 5),
-
 
                   // Location
                   Row(
@@ -544,24 +553,17 @@ class QuestTimelineCard extends StatelessWidget {
                     ],
                   ),
 
-
                   const SizedBox(height: 12),
-
 
                   // Description
                   Text(
                     quest.description,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      height: 1.4,
-                    ),
+                    style: const TextStyle(color: Colors.white70, height: 1.4),
                   ),
-
 
                   // LOCKED / REQUIREMENTS
                   if (!quest.completed && isLocked) ...[
                     const SizedBox(height: 14),
-
 
                     Container(
                       width: double.infinity,
@@ -569,9 +571,7 @@ class QuestTimelineCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.red.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.red.withOpacity(0.35),
-                        ),
+                        border: Border.all(color: Colors.red.withOpacity(0.35)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,9 +595,7 @@ class QuestTimelineCard extends StatelessWidget {
                             ],
                           ),
 
-
                           const SizedBox(height: 8),
-
 
                           const Text(
                             'Complete these steps first:',
@@ -607,22 +605,17 @@ class QuestTimelineCard extends StatelessWidget {
                             ),
                           ),
 
-
                           const SizedBox(height: 6),
-
 
                           ...missingRequirements.map(
                             (requiredQuest) => Padding(
                               padding: const EdgeInsets.only(bottom: 5),
                               child: Row(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
                                     '• ',
-                                    style: TextStyle(
-                                      color: Colors.redAccent,
-                                    ),
+                                    style: TextStyle(color: Colors.redAccent),
                                   ),
                                   Expanded(
                                     child: Text(
@@ -642,11 +635,9 @@ class QuestTimelineCard extends StatelessWidget {
                     ),
                   ],
 
-
                   // WARNING
                   if (quest.warnings.isNotEmpty) ...[
                     const SizedBox(height: 14),
-
 
                     Container(
                       width: double.infinity,
@@ -679,9 +670,7 @@ class QuestTimelineCard extends StatelessWidget {
                             ],
                           ),
 
-
                           const SizedBox(height: 8),
-
 
                           ...quest.warnings.map(
                             (warning) => Padding(
@@ -696,11 +685,9 @@ class QuestTimelineCard extends StatelessWidget {
                             ),
                           ),
 
-
                           // Affected quests
                           if (quest.affects.isNotEmpty) ...[
                             const SizedBox(height: 8),
-
 
                             const Text(
                               'AFFECTED QUESTS',
@@ -712,25 +699,22 @@ class QuestTimelineCard extends StatelessWidget {
                               ),
                             ),
 
-
                             const SizedBox(height: 5),
-
 
                             Wrap(
                               spacing: 5,
                               runSpacing: 5,
-                              children: quest.affects.map(
-                                (affected) => Chip(
-                                  label: Text(
-                                    affected,
-                                    style: const TextStyle(
-                                      fontSize: 11,
+                              children: quest.affects
+                                  .map(
+                                    (affected) => Chip(
+                                      label: Text(
+                                        affected,
+                                        style: const TextStyle(fontSize: 11),
+                                      ),
+                                      visualDensity: VisualDensity.compact,
                                     ),
-                                  ),
-                                  visualDensity:
-                                      VisualDensity.compact,
-                                ),
-                              ).toList(),
+                                  )
+                                  .toList(),
                             ),
                           ],
                         ],
@@ -738,26 +722,20 @@ class QuestTimelineCard extends StatelessWidget {
                     ),
                   ],
 
-
                   const SizedBox(height: 14),
-
 
                   // Complete button
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: isLocked ? null : onToggle,
-                      icon: Icon(
-                        quest.completed
-                            ? Icons.undo
-                            : Icons.check,
-                      ),
+                      icon: Icon(quest.completed ? Icons.undo : Icons.check),
                       label: Text(
                         quest.completed
                             ? 'Mark Incomplete'
                             : isLocked
-                                ? 'Locked'
-                                : 'Mark Complete',
+                            ? 'Locked'
+                            : 'Mark Complete',
                       ),
                     ),
                   ),
@@ -770,4 +748,3 @@ class QuestTimelineCard extends StatelessWidget {
     );
   }
 }
-
