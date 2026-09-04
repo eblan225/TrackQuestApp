@@ -412,7 +412,7 @@ class QuestTimelineCard extends StatelessWidget {
   List<QuestStep> get missingRequirements {
     return quest.requires
         .map(findQuestById)
-        .where((q) => q != null && !q!.completed)
+        .where((q) => q != null && !q.completed)
         .cast<QuestStep>()
         .toList();
   }
