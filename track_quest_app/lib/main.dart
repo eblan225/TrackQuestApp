@@ -1,414 +1,345 @@
 import 'package:flutter/material.dart';
+import "quest_data.dart";
 
-void main() {
-  runApp(const EldenQuestApp());
-}
 
-// ─────────────────────────────────────────────
-// DATA MODELS
-// ─────────────────────────────────────────────
+void main() => runApp(const TrackQuestApp());
 
-class QuestStep {
-  final String id;
-  final String quest;
-  final String title;
-  final String description;
-  final String region;
-  final List<String> warnings;
-  final List<String> affectedQuests;
 
-  bool completed;
+class TrackQuestApp extends StatelessWidget {
+  const TrackQuestApp({super.key});
 
-  QuestStep({
-    required this.id,
-    required this.quest,
-    required this.title,
-    required this.description,
-    required this.region,
-    this.warnings = const [],
-    this.affectedQuests = const [],
-    this.completed = false,
-  });
-}
-
-// ─────────────────────────────────────────────
-// QUEST DATA
-// ─────────────────────────────────────────────
-
-final List<QuestStep> questSteps = [
-  QuestStep(
-    id: 'melina',
-    quest: 'Main Story',
-    title: 'Meet Melina',
-    description: 'Rest at several Sites of Grace in Limgrave and meet Melina.',
-    region: 'Limgrave',
-  ),
-
-  QuestStep(
-    id: 'renna',
-    quest: 'Ranni',
-    title: 'Meet Renna at the Church of Elleh',
-    description: 'Return to the Church of Elleh at night and speak with Renna.',
-    region: 'Limgrave',
-  ),
-
-  QuestStep(
-    id: 'blaidd',
-    quest: 'Blaidd',
-    title: 'Find Blaidd in Mistwood',
-    description: 'Hear Blaidd howling in Mistwood and speak with him after learning the Finger Snap gesture.',
-    region: 'Limgrave',
-  ),
-
-  QuestStep(
-    id: 'margit',
-    quest: 'Main Story',
-    title: 'Defeat Margit, the Fell Omen',
-    description: 'Defeat Margit at the entrance to Stormveil Castle.',
-    region: 'Limgrave',
-    warnings: [
-      'Progressing through Stormveil can advance several NPC questlines.',
-    ],
-    affectedQuests: [
-      'Nepheli Loux',
-      'Rogier',
-    ],
-  ),
-
-  QuestStep(
-    id: 'nepheli',
-    quest: 'Nepheli Loux',
-    title: 'Meet Nepheli in Stormveil Castle',
-    description: 'Find Nepheli in the room near the Secluded Cell Site of Grace.',
-    region: 'Limgrave',
-  ),
-
-  QuestStep(
-    id: 'rogier',
-    quest: 'Rogier',
-    title: 'Speak with Sorcerer Rogier',
-    description: 'Speak with Rogier in Stormveil Castle.',
-    region: 'Limgrave',
-  ),
-
-  QuestStep(
-    id: 'rennala',
-    quest: 'Main Story',
-    title: 'Defeat Rennala, Queen of the Full Moon',
-    description: 'Defeat Rennala in the Academy of Raya Lucaria.',
-    region: 'Liurnia',
-    warnings: [
-      'Major story progression.',
-      'Make sure you have completed any desired early Liurnia quest steps.',
-    ],
-    affectedQuests: [
-      'Ranni',
-      'Sellen',
-      'Boc',
-    ],
-  ),
-
-  QuestStep(
-    id: 'ranni',
-    quest: 'Ranni',
-    title: 'Meet Ranni at Ranni\'s Rise',
-    description: 'Travel to the Three Sisters and speak with Ranni.',
-    region: 'Liurnia',
-  ),
-
-  QuestStep(
-    id: 'sellen',
-    quest: 'Sellen',
-    title: 'Meet Sorceress Sellen',
-    description: 'Find Sellen at the Waypoint Ruins and begin her quest.',
-    region: 'Limgrave',
-  ),
-
-  QuestStep(
-    id: 'radahn',
-    quest: 'Ranni',
-    title: 'Defeat Starscourge Radahn',
-    description: 'Travel to Redmane Castle and defeat Starscourge Radahn.',
-    region: 'Caelid',
-    warnings: [
-      'This significantly advances Ranni\'s questline.',
-      'The Radahn Festival changes the state of Redmane Castle.',
-      'Several NPC questlines can be affected by this progression.',
-    ],
-    affectedQuests: [
-      'Ranni',
-      'Blaidd',
-      'Alexander',
-      'Redmane Castle',
-    ],
-  ),
-
-  QuestStep(
-    id: 'nokron',
-    quest: 'Ranni',
-    title: 'Enter Nokron, Eternal City',
-    description: 'Enter the crater created after defeating Radahn.',
-    region: 'Nokron',
-    warnings: [
-      'This continues Ranni\'s questline.',
-      'Make sure you have completed any desired pre-Nokron dialogue.',
-    ],
-    affectedQuests: [
-      'Ranni',
-      'Blaidd',
-    ],
-  ),
-
-  QuestStep(
-    id: 'fingerslayer',
-    quest: 'Ranni',
-    title: 'Obtain the Fingerslayer Blade',
-    description: 'Find the Fingerslayer Blade in Nokron and return it to Ranni.',
-    region: 'Nokron',
-  ),
-
-  QuestStep(
-    id: 'altus',
-    quest: 'Main Story',
-    title: 'Reach the Altus Plateau',
-    description: 'Travel to the Altus Plateau.',
-    region: 'Altus Plateau',
-    warnings: [
-      'Reaching certain areas can advance NPC questlines.',
-      'Check your active quests before progressing further.',
-    ],
-    affectedQuests: [
-      'Millicent',
-      'Corhyn',
-      'Goldmask',
-    ],
-  ),
-
-  QuestStep(
-    id: 'leyndell',
-    quest: 'Main Story',
-    title: 'Enter Leyndell',
-    description: 'Enter the Royal Capital.',
-    region: 'Leyndell',
-    warnings: [
-      'Major progression point.',
-      'Some NPCs may move or change states after significant story progression.',
-    ],
-    affectedQuests: [
-      'Corhyn',
-      'Goldmask',
-      'Dung Eater',
-    ],
-  ),
-];
-
-// ─────────────────────────────────────────────
-// APP
-// ─────────────────────────────────────────────
-
-class EldenQuestApp extends StatelessWidget {
-  const EldenQuestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Elden Ring Quest Tracker',
+      title: 'TrackQuest',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF11110F),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFC9A227),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF07111F),
+        fontFamily: 'sans-serif',
       ),
-      home: const QuestHomePage(),
+      home: const QuestListScreen(),
     );
   }
 }
 
-// ─────────────────────────────────────────────
-// HOME PAGE
-// ─────────────────────────────────────────────
 
-class QuestHomePage extends StatefulWidget {
-  const QuestHomePage({super.key});
+class QuestListScreen extends StatelessWidget {
+  const QuestListScreen({super.key});
+
 
   @override
-  State<QuestHomePage> createState() => _QuestHomePageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'TRACKQUEST',
+                style: TextStyle(
+                  color: Color(0xFF54B7FF),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 3,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Center(
+                child: Text(
+                  'My Quests',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFFF2F7FF),
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+               // ELDEN RING GAME CARD
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EldenRingScreen(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0E1C2F),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFF1D334D)),
+                  ),
+                  child: const Row(
+                    children: [
+                      QuestMarker(),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Elden Ring',
+                              style: TextStyle(
+                                color: Color(0xFFF2F7FF),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              '0% complete',
+                              style: TextStyle(
+                                color: Color(0xFF54B7FF),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Color(0xFF526A84),
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _QuestHomePageState extends State<QuestHomePage> {
+
+class QuestMarker extends StatelessWidget {
+  const QuestMarker({super.key});
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: const Color(0xFF112B45),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: const Icon(Icons.bolt_rounded, color: Color(0xFF54B7FF)),
+    );
+  }
+}
+
+
+
+
+
+
+// ─────────────────────────────────────────────
+// ELDEN RING SCREEN
+// ─────────────────────────────────────────────
+
+
+class EldenRingScreen extends StatefulWidget {
+  const EldenRingScreen({super.key});
+
+
+  @override
+  State<EldenRingScreen> createState() =>
+      _EldenRingScreenState();
+}
+
+
+class _EldenRingScreenState extends State<EldenRingScreen> {
   String selectedRegion = 'All';
-  String searchText = '';
+
 
   final List<String> regions = [
     'All',
     'Limgrave',
     'Liurnia',
     'Caelid',
+    'Siofra River',
     'Nokron',
+    'Ainsel River',
     'Altus Plateau',
     'Leyndell',
+    'Mountaintops of the Giants',
+    'Crumbling Farum Azula',
+    'Roundtable Hold',
+    'Deeproot Depths',
   ];
 
-  List<QuestStep> get filteredSteps {
-    return questSteps.where((step) {
-      final regionMatches =
-          selectedRegion == 'All' || step.region == selectedRegion;
 
-      final searchMatches =
-          searchText.isEmpty ||
-          step.title.toLowerCase().contains(searchText.toLowerCase()) ||
-          step.quest.toLowerCase().contains(searchText.toLowerCase());
+  // Only show quests matching the selected region.
+  List<QuestStep> get filteredQuests {
+    if (selectedRegion == 'All') {
+      return eldenRingQuests;
+    }
 
-      return regionMatches && searchMatches;
-    }).toList();
+
+    return eldenRingQuests
+        .where((quest) => quest.region == selectedRegion)
+        .toList();
   }
 
+
+  // Count completed quests.
   int get completedCount {
-    return questSteps.where((step) => step.completed).length;
+    return eldenRingQuests
+        .where((quest) => quest.completed)
+        .length;
   }
 
+
+  // Calculate percentage.
   double get progress {
-    if (questSteps.isEmpty) return 0;
-    return completedCount / questSteps.length;
+    if (eldenRingQuests.isEmpty) {
+      return 0;
+    }
+
+
+    return completedCount / eldenRingQuests.length;
   }
 
-  void toggleQuest(QuestStep step) {
+
+  // Complete / uncomplete a quest.
+  void toggleQuest(QuestStep quest) {
     setState(() {
-      step.completed = !step.completed;
+      quest.completed = !quest.completed;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF191814),
-        title: const Row(
-          children: [
-            Icon(
-              Icons.shield,
-              color: Color(0xFFC9A227),
-            ),
-            SizedBox(width: 10),
-            Text(
-              'Elden Ring Quest Tracker',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+        backgroundColor: const Color(0xFF0E1C2F),
+        title: const Text(
+          'Elden Ring',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
+
 
       body: Column(
         children: [
           // ─────────────────────────────────
-          // PROGRESS HEADER
+          // PROGRESS
           // ─────────────────────────────────
+
 
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
-            color: const Color(0xFF191814),
+            color: const Color(0xFF0E1C2F),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Quest Progress',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFF2F7FF),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                const SizedBox(height: 10),
+
+                const SizedBox(height: 12),
+
 
                 Row(
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius:
+                            BorderRadius.circular(10),
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 10,
-                          backgroundColor: Colors.white12,
+                          backgroundColor:
+                              const Color(0xFF1D334D),
                           valueColor:
-                              const AlwaysStoppedAnimation<Color>(
-                            Color(0xFFC9A227),
+                              const AlwaysStoppedAnimation<
+                                  Color>(
+                            Color(0xFF54B7FF),
                           ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(width: 15),
+
+                    const SizedBox(width: 12),
+
 
                     Text(
-                      '$completedCount / ${questSteps.length}',
+                      '${(progress * 100).round()}%',
                       style: const TextStyle(
-                        color: Color(0xFFC9A227),
+                        color: Color(0xFF54B7FF),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
 
+
                 const SizedBox(height: 8),
 
+
                 Text(
-                  '${(progress * 100).round()}% complete',
+                  '$completedCount of ${eldenRingQuests.length} steps completed',
                   style: const TextStyle(
-                    color: Colors.white60,
+                    color: Colors.white54,
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
 
-          // ─────────────────────────────────
-          // SEARCH
-          // ─────────────────────────────────
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  searchText = value;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Search quests...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
 
           // ─────────────────────────────────
           // REGION FILTER
           // ─────────────────────────────────
 
+
           SizedBox(
-            height: 50,
+            height: 55,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12),
               itemCount: regions.length,
               itemBuilder: (context, index) {
                 final region = regions[index];
-                final selected = region == selectedRegion;
+
+
+                final selected =
+                    region == selectedRegion;
+
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 8,
+                  ),
                   child: FilterChip(
                     label: Text(region),
                     selected: selected,
@@ -423,37 +354,28 @@ class _QuestHomePageState extends State<QuestHomePage> {
             ),
           ),
 
-          const SizedBox(height: 8),
 
           // ─────────────────────────────────
-          // TIMELINE
+          // QUEST TIMELINE
           // ─────────────────────────────────
+
 
           Expanded(
-            child: filteredSteps.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No quests found.',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 16,
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredSteps.length,
-                    itemBuilder: (context, index) {
-                      final step = filteredSteps[index];
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: filteredQuests.length,
+              itemBuilder: (context, index) {
+                final quest = filteredQuests[index];
 
-                      return QuestTimelineItem(
-                        step: step,
-                        isFirst: index == 0,
-                        isLast: index == filteredSteps.length - 1,
-                        onToggle: () => toggleQuest(step),
-                      );
-                    },
-                  ),
+
+                return QuestTimelineCard(
+                  quest: quest,
+                  onToggle: () {
+                    toggleQuest(quest);
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -461,286 +383,391 @@ class _QuestHomePageState extends State<QuestHomePage> {
   }
 }
 
-// ─────────────────────────────────────────────
-// TIMELINE ITEM
-// ─────────────────────────────────────────────
 
-class QuestTimelineItem extends StatelessWidget {
-  final QuestStep step;
-  final bool isFirst;
-  final bool isLast;
+// ─────────────────────────────────────────────
+// QUEST TIMELINE CARD
+// ─────────────────────────────────────────────
+class QuestTimelineCard extends StatelessWidget {
+  final QuestStep quest;
   final VoidCallback onToggle;
 
-  const QuestTimelineItem({
+
+  const QuestTimelineCard({
     super.key,
-    required this.step,
-    required this.isFirst,
-    required this.isLast,
+    required this.quest,
     required this.onToggle,
   });
 
+
+  QuestStep? findQuestById(String id) {
+    for (final q in eldenRingQuests) {
+      if (q.id == id) {
+        return q;
+      }
+    }
+    return null;
+  }
+
+
+  List<QuestStep> get missingRequirements {
+    return quest.requires
+        .map(findQuestById)
+        .where((q) => q != null && !q!.completed)
+        .cast<QuestStep>()
+        .toList();
+  }
+
+
+  bool get isLocked {
+    return missingRequirements.isNotEmpty;
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Timeline line
-          SizedBox(
-            width: 35,
-            child: Column(
-              children: [
-                if (!isFirst)
-                  Container(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Timeline marker
+        SizedBox(
+          width: 35,
+          child: Column(
+            children: [
+              Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: quest.completed
+                      ? const Color(0xFF54B7FF)
+                      : isLocked
+                          ? const Color(0xFF526A84)
+                          : const Color(0xFF1D334D),
+                  border: Border.all(
+                    color: isLocked
+                        ? const Color(0xFF526A84)
+                        : const Color(0xFF54B7FF),
                     width: 2,
-                    height: 12,
-                    color: Colors.white24,
                   ),
-
-                Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: step.completed
-                        ? const Color(0xFFC9A227)
-                        : Colors.white24,
-                    border: Border.all(
-                      color: step.completed
-                          ? const Color(0xFFC9A227)
-                          : Colors.white38,
-                      width: 2,
-                    ),
-                  ),
-                  child: step.completed
-                      ? const Icon(
-                          Icons.check,
-                          size: 12,
-                          color: Colors.black,
-                        )
-                      : null,
                 ),
+                child: quest.completed
+                    ? const Icon(
+                        Icons.check,
+                        size: 12,
+                        color: Colors.black,
+                      )
+                    : isLocked
+                        ? const Icon(
+                            Icons.lock,
+                            size: 9,
+                            color: Colors.white70,
+                          )
+                        : null,
+              ),
+              Container(
+                width: 2,
+                height: 170,
+                color: const Color(0xFF1D334D),
+              ),
+            ],
+          ),
+        ),
 
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      color: Colors.white24,
+
+        const SizedBox(width: 8),
+
+
+        // Quest card
+        Expanded(
+          child: Card(
+            color: isLocked
+                ? const Color(0xFF0A1625)
+                : const Color(0xFF0E1C2F),
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Quest name
+                  Text(
+                    quest.quest.toUpperCase(),
+                    style: const TextStyle(
+                      color: Color(0xFF54B7FF),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
                     ),
                   ),
-              ],
-            ),
-          ),
 
-          const SizedBox(width: 8),
 
-          // Quest card
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Card(
-                color: step.completed
-                    ? const Color(0xFF181815)
-                    : const Color(0xFF1D1C18),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Quest name
-                      Text(
-                        step.quest.toUpperCase(),
-                        style: const TextStyle(
-                          color: Color(0xFFC9A227),
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
+                  const SizedBox(height: 5),
 
-                      const SizedBox(height: 5),
 
-                      // Title
-                      Text(
-                        step.title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          decoration: step.completed
-                              ? TextDecoration.lineThrough
-                              : null,
-                          color: step.completed
+                  // Quest title
+                  Text(
+                    quest.title,
+                    style: TextStyle(
+                      color: quest.completed
+                          ? Colors.white38
+                          : isLocked
                               ? Colors.white54
-                              : Colors.white,
-                        ),
+                              : const Color(0xFFF2F7FF),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      decoration: quest.completed
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                  ),
+
+
+                  const SizedBox(height: 5),
+
+
+                  // Location
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 15,
+                        color: Color(0xFF54B7FF),
                       ),
-
-                      const SizedBox(height: 5),
-
-                      // Location
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on_outlined,
-                            size: 15,
-                            color: Colors.white54,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            step.region,
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
+                      const SizedBox(width: 4),
                       Text(
-                        step.description,
+                        quest.region,
                         style: const TextStyle(
-                          color: Colors.white70,
-                          height: 1.4,
-                        ),
-                      ),
-
-                      // ─────────────────────
-                      // WARNING
-                      // ─────────────────────
-
-                      if (step.warnings.isNotEmpty) ...[
-                        const SizedBox(height: 15),
-
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.orange.withOpacity(0.35),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    color: Colors.orange,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'WARNING',
-                                    style: TextStyle(
-                                      color: Colors.orange,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 8),
-
-                              ...step.warnings.map(
-                                (warning) => Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: 5),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        '• ',
-                                        style: TextStyle(
-                                          color: Colors.orange,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          warning,
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              if (step.affectedQuests.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-
-                                const Text(
-                                  'AFFECTED QUESTS',
-                                  style: TextStyle(
-                                    color: Colors.orange,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 5),
-
-                                Wrap(
-                                  spacing: 6,
-                                  runSpacing: 6,
-                                  children: step.affectedQuests
-                                      .map(
-                                        (quest) => Chip(
-                                          label: Text(
-                                            quest,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          visualDensity:
-                                              VisualDensity.compact,
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-
-                      const SizedBox(height: 12),
-
-                      // ─────────────────────
-                      // COMPLETE BUTTON
-                      // ─────────────────────
-
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: onToggle,
-                          icon: Icon(
-                            step.completed
-                                ? Icons.undo
-                                : Icons.check,
-                          ),
-                          label: Text(
-                            step.completed
-                                ? 'Mark Incomplete'
-                                : 'Mark Complete',
-                          ),
+                          color: Color(0xFF54B7FF),
+                          fontSize: 12,
                         ),
                       ),
                     ],
                   ),
-                ),
+
+
+                  const SizedBox(height: 12),
+
+
+                  // Description
+                  Text(
+                    quest.description,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      height: 1.4,
+                    ),
+                  ),
+
+
+                  // LOCKED / REQUIREMENTS
+                  if (!quest.completed && isLocked) ...[
+                    const SizedBox(height: 14),
+
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.red.withOpacity(0.35),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.lock_outline,
+                                color: Colors.redAccent,
+                                size: 19,
+                              ),
+                              SizedBox(width: 7),
+                              Text(
+                                'LOCKED',
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+
+
+                          const SizedBox(height: 8),
+
+
+                          const Text(
+                            'Complete these steps first:',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+
+
+                          const SizedBox(height: 6),
+
+
+                          ...missingRequirements.map(
+                            (requiredQuest) => Padding(
+                              padding: const EdgeInsets.only(bottom: 5),
+                              child: Row(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '• ',
+                                    style: TextStyle(
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      requiredQuest.title,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+
+                  // WARNING
+                  if (quest.warnings.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.orange.withOpacity(0.4),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.orange,
+                                size: 20,
+                              ),
+                              SizedBox(width: 7),
+                              Text(
+                                'WARNING',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+
+
+                          const SizedBox(height: 8),
+
+
+                          ...quest.warnings.map(
+                            (warning) => Padding(
+                              padding: const EdgeInsets.only(bottom: 5),
+                              child: Text(
+                                '• $warning',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+
+
+                          // Affected quests
+                          if (quest.affects.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+
+
+                            const Text(
+                              'AFFECTED QUESTS',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+
+
+                            const SizedBox(height: 5),
+
+
+                            Wrap(
+                              spacing: 5,
+                              runSpacing: 5,
+                              children: quest.affects.map(
+                                (affected) => Chip(
+                                  label: Text(
+                                    affected,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  visualDensity:
+                                      VisualDensity.compact,
+                                ),
+                              ).toList(),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+
+
+                  const SizedBox(height: 14),
+
+
+                  // Complete button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: isLocked ? null : onToggle,
+                      icon: Icon(
+                        quest.completed
+                            ? Icons.undo
+                            : Icons.check,
+                      ),
+                      label: Text(
+                        quest.completed
+                            ? 'Mark Incomplete'
+                            : isLocked
+                                ? 'Locked'
+                                : 'Mark Complete',
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
+
